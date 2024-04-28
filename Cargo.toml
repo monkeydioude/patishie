@@ -1,0 +1,22 @@
+[package]
+name = "patishie"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+mongodb = "2.7.0"
+config = "0.10"
+serde = { version = "1.0.163", features = ["derive"] }
+serde_json = "1.0"
+reqwest = { version = "0.11", features = ["blocking", "json"] }
+tokio = { version = "1.37.0", features = ["full"] }
+chrono = "0.4.31"
+thiserror = "1.0.49"
+futures = "0.3.28"
+url = "2"
+
+[dev-dependencies]
+[profile.dev]
+opt-level = 0
+[profile.release]
+opt-level = 0

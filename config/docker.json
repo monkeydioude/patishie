@@ -1,0 +1,9 @@
+{
+    "debug": true,
+    "api_path": "http://bakery:8084",
+    "db_path": "mongodb://mongo:27017",
+    "databases": ["channels", "panya"],
+    "app_name": "パティシエ",
+    "bakery_trigger_cooldown": 2,
+    "default_item_per_feed": 10
+}

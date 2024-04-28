@@ -1,0 +1,5 @@
+{
+    "debug": true,
+    "api_path": "http://localhost:8082",
+    "default_item_per_feed": 10
+}

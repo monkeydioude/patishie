@@ -1,0 +1,10 @@
+{
+    "debug": true,
+    "api_path": "http://0.0.0.0:8084",
+    "db_path": "mongodb://localhost:27017",
+    "databases": ["panya"],
+    "app_name": "パティシエ",
+    "bakery_trigger_cooldown": 5,
+    "default_main_sleep": 200,
+    "default_item_per_feed": 15
+}
