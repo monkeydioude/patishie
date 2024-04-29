@@ -7,7 +7,7 @@ use mongodb::{
     Collection, Database,
 };
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
-use std::{collections::HashMap, fmt::{Debug, Display}, vec};
+use std::{collections::HashMap, fmt::{Debug, Display}, sync::Arc, vec};
 
 use super::mongo::{db_not_found_err, to_bson_vec, Handle};
 
@@ -320,13 +320,13 @@ pub trait PrimaryID<T: PartialEq> {
     fn get_primary_id(&self) -> Option<T>;
 }
 
-pub struct BlankCollection<'a, T: Serialize> {
+pub struct BlankCollection<T: Serialize> {
     collection: Collection<T>,
-    handle: &'a Handle,
-    db_name: &'a str,
+    handle: Arc<Handle>,
+    db_name: String,
 }
 
-impl<'a, P: PartialEq, T: CollectionModelConstraint<P>> CollectionModel<P, T> for BlankCollection<'a, T> {
+impl<P: PartialEq, T: CollectionModelConstraint<P>> CollectionModel<P, T> for BlankCollection<T> {
     fn collection(&self) -> &Collection<T> {
         &self.collection
     }
@@ -336,12 +336,12 @@ impl<'a, P: PartialEq, T: CollectionModelConstraint<P>> CollectionModel<P, T> fo
     }
 
     fn get_database(&self) -> Option<&Database> {
-        self.handle.database(self.db_name)
+        self.handle.database(&self.db_name)
     }
 }
 
-impl<'a, T: CollectionModelConstraint<String>> BlankCollection<'a, T> {
-    pub fn new(handle: &'a Handle, db_name: &'a str, collection_name: &str) -> Result<Self, Error> {
+impl<T: CollectionModelConstraint<String>> BlankCollection<T> {
+    pub fn new(handle: Arc<Handle>, db_name: &str, collection_name: &str) -> Result<Self, Error> {
         let collection = (match handle.database(db_name) {
             Some(res) => res,
             None => return Error::to_result_string("no database found"),
@@ -349,7 +349,7 @@ impl<'a, T: CollectionModelConstraint<String>> BlankCollection<'a, T> {
         .collection::<T>(collection_name);
 
         Ok(Self {
-            db_name,
+            db_name: db_name.to_string(),
             handle,
             collection,
         })
@@ -358,7 +358,7 @@ impl<'a, T: CollectionModelConstraint<String>> BlankCollection<'a, T> {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
+    use std::{collections::HashMap, sync::Arc};
 
     use serde::{Deserialize, Serialize};
     use crate::{config, db::{self, items::Items, model::{CollectionModel, SortOrder}}, entities::potential_articles::PotentialArticle};
@@ -383,8 +383,8 @@ mod tests {
     #[tokio::test]
     async fn test_get_seq() {
         let settings = config::Settings::new().unwrap();
-        let db_handle = db::mongo::get_handle(&settings).await;
-        let coll = BlankCollection::<Test>::new(&db_handle, "panya", "test").unwrap();
+        let db_handle = Arc::new(db::mongo::get_handle(&settings).await);
+        let coll = BlankCollection::<Test>::new(db_handle, "panya", "test").unwrap();
         // coll.insert_many(&[Test{}]).await.unwrap();
 
         println!("next sequence: {}", coll.get_next_seq().await.unwrap() );
@@ -393,8 +393,8 @@ mod tests {
     #[tokio::test]
     async fn test_find_with_limits() {
         let settings = config::Settings::new().unwrap();
-        let db_handle = db::mongo::get_handle(&settings).await;
-        let coll = Items::<PotentialArticle>::new(&db_handle, "panya").unwrap();
+        let db_handle = Arc::new(db::mongo::get_handle(&settings).await);
+        let coll = Items::<PotentialArticle>::new(db_handle, "panya").unwrap();
         // coll.insert_many(&[Test{}]).await.unwrap();
 
         println!("next find_with_limits: {:?}", coll.find_with_limits(

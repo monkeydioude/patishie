@@ -5,7 +5,7 @@ use crate::db::{
     model::{BlankCollection, CollectionModel},
 };
 
-pub type Timers<'a> = BlankCollection<'a, Timer>;
+pub type Timers<'a> = BlankCollection<Timer>;
 
 impl<'a> Timers<'a> {
     pub async fn insert_one(&self, channel: &str, time_to_refresh: i64) -> Option<()> {

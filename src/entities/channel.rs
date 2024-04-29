@@ -89,7 +89,7 @@ impl Channel {
 pub async fn new_with_seq_db(
     name: &str,
     source: SourceType,
-    channels_coll: &Channels<'_, Channel>,
+    channels_coll: &Channels<Channel>,
 ) -> Result<Channel, Error> {
     let mut channel = Channel::new(name, source);
     channel.id = channels_coll.get_next_seq().await?;

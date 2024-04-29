@@ -5,16 +5,16 @@ use super::{
 use crate::error::Error;
 use mongodb::{bson::doc, results::InsertManyResult, Collection, Database, IndexModel};
 use serde::Serialize;
-use std::fmt::Debug;
+use std::{fmt::Debug, sync::Arc};
 
 #[derive(Debug)]
-pub struct Items<'a, T: Serialize> {
+pub struct Items<T: Serialize> {
     collection: Collection<T>,
-    handle: &'a Handle,
+    handle: Arc<Handle>,
     db_name: String,
 }
 
-impl<'a, T: CollectionModelConstraint<i32>> Items<'a, T> {
+impl<T: CollectionModelConstraint<i32>> Items<T> {
     pub async fn insert_many(&self, data: &[T], index: Option<String>) -> Result<InsertManyResult, Error> {
         let idx = index.unwrap_or_else(|| "create_date".to_string());
         // Works cause we dont store result, nor do we return it.
@@ -30,7 +30,7 @@ impl<'a, T: CollectionModelConstraint<i32>> Items<'a, T> {
         &self.db_name
     }
 
-    pub fn new(handle: &'a Handle, db_name: &'a str) -> Result<Self, Error> {
+    pub fn new(handle: Arc<Handle>, db_name: &str) -> Result<Self, Error> {
         let collection = (match handle.database(db_name) {
             Some(res) => res,
             None => return Err(Error("no database found".to_string())),
@@ -44,7 +44,7 @@ impl<'a, T: CollectionModelConstraint<i32>> Items<'a, T> {
     }
 }
 
-impl<'a, P: PartialEq, T: CollectionModelConstraint<P>> CollectionModel<P, T> for Items<'a, T> {
+impl<P: PartialEq, T: CollectionModelConstraint<P>> CollectionModel<P, T> for Items<T> {
     fn collection(&self) -> &Collection<T> {
         &self.collection
     }

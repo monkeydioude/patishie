@@ -6,16 +6,16 @@ use crate::{entities::channel::{new_with_seq_db, Channel, SourceType}, error::Er
 use chrono::Utc;
 use mongodb::{bson::doc, results::InsertManyResult, Collection, Database, IndexModel};
 use serde::Serialize;
-use std::fmt::Debug;
+use std::{fmt::Debug, sync::Arc};
 
 #[derive(Debug)]
-pub struct Channels<'a, T: Serialize> {
+pub struct Channels<T: Serialize> {
     collection: Collection<T>,
-    handle: &'a Handle,
+    handle: Arc<Handle>,
     db_name: String,
 }
 
-impl<'a> Channels<'a, Channel> {
+impl Channels<Channel> {
     pub async fn insert_many(&self, data: &[Channel], index: Option<String>) -> Result<InsertManyResult, Error> {
         let idx = index.unwrap_or_else(|| "create_date".to_string());
         // Works cause we dont store result, nor do we return it.
@@ -55,7 +55,7 @@ impl<'a> Channels<'a, Channel> {
             .and(Some(refresh_time))
     }
 
-    pub fn new(handle: &'a Handle, db_name: &'a str) -> Result<Self, Error> {
+    pub fn new(handle: Arc<Handle>, db_name: &str) -> Result<Self, Error> {
         let collection = (match handle.database(db_name) {
             Some(res) => res,
             None => return Err(Error("no database found".to_string())),
@@ -69,7 +69,7 @@ impl<'a> Channels<'a, Channel> {
     }
 }
 
-impl<'a, P: PartialEq, T: CollectionModelConstraint<P>> CollectionModel<P, T> for Channels<'a, T> {
+impl<P: PartialEq, T: CollectionModelConstraint<P>> CollectionModel<P, T> for Channels<T> {
     fn collection(&self) -> &Collection<T> {
         &self.collection
     }
@@ -84,7 +84,7 @@ impl<'a, P: PartialEq, T: CollectionModelConstraint<P>> CollectionModel<P, T> fo
 }
 
 pub async fn get_channel_id(
-    channels_coll: &Channels<'_, Channel>,
+    channels_coll: &Channels<Channel>,
     channel_name: &str,
     source_type: SourceType,
 ) -> Result<i32, Error> {
