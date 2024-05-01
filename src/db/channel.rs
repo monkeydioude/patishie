@@ -3,7 +3,7 @@ use super::{
     mongo::Handle,
 };
 use crate::{entities::channel::{new_with_seq_db, Channel, SourceType}, error::Error};
-use chrono::Utc;
+use chrono::{DateTime, Utc};
 use mongodb::{bson::doc, results::InsertManyResult, Collection, Database, IndexModel};
 use serde::Serialize;
 use std::{fmt::Debug, sync::Arc};
@@ -35,6 +35,8 @@ impl Channels<Channel> {
         &self,
         channel_id: impl Into<Option<i32>>,
         channel_name: impl Into<Option<&str>>,
+        time: DateTime<Utc>,
+        success: bool,
     ) -> Option<i64> {
         let mut doc = None;
         if let Some(id) = channel_id.into() {
@@ -42,17 +44,32 @@ impl Channels<Channel> {
         } else if let Some(name) = channel_name.into() {
             doc = Some(doc!{"name": name});
         }
+        let refresh_time = time.timestamp_millis();
+        let update = match success {
+            true => doc! {"$set": {
+                "last_refresh": refresh_time,
+                "last_successful_refresh": refresh_time,
+            }},
+            false => doc! {"$set": {
+                "last_refresh": refresh_time,
+            }},
+        };
         let uw_doc = doc?;
-        let refresh_time = Utc::now().timestamp_millis();
         self.collection()
             .update_one(
-                uw_doc,
-                doc! {"$set": {
-                    "last_refresh": refresh_time,
-                }} , None)
+                uw_doc, update, None)
             .await
             .ok()
             .and(Some(refresh_time))
+    }
+
+    pub async fn update_refresh_now(
+        &self,
+        channel_id: impl Into<Option<i32>>,
+        channel_name: impl Into<Option<&str>>,
+        success: bool,
+    ) -> Option<i64> {
+        self.update_refresh(channel_id, channel_name, Utc::now(), success).await
     }
 
     pub fn new(handle: Arc<Handle>, db_name: &str) -> Result<Self, Error> {
@@ -89,7 +106,7 @@ pub async fn get_channel_id(
     source_type: SourceType,
 ) -> Result<i32, Error> {
     match channels_coll
-        .find(doc!{"name": channel_name}, None, 1, None)
+        .find(doc!{"name": channel_name}, None, 1)
         .await
         .unwrap_or_default()
         .pop() {

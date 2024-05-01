@@ -50,20 +50,23 @@ async fn update_from_bakery(
         .await
         .unwrap_or_default();
     let refresh_time = (Utc::now() - now_before_refresh).num_milliseconds();
+    let mut success = true;
     if parsed_from_bakery.is_empty() {
-        return Err(error::Error("bakery::get_cookies_from_bakery - no articles found".to_string()));
+        success = false;
+        println!("bakery::get_cookies_from_bakery, channel_name: {}, channel_id: {} - no articles found", channel_name, channel_id);
+    } else {
+        db_bag.timers_coll
+            .insert_one(&channel_name, refresh_time)
+            .await;
+        let _ = process_data(
+            &parsed_from_bakery,
+            &db_bag.items_coll,
+            &db_bag.channels_coll,
+            &channel_name,
+        );
     }
-    db_bag.timers_coll
-        .insert_one(&channel_name, refresh_time)
-        .await;
-    let _ = process_data(
-        &parsed_from_bakery,
-        &db_bag.items_coll,
-        &db_bag.channels_coll,
-        &channel_name,
-    );
     db_bag.channels_coll
-        .update_refresh(channel_id, &*channel_name)
+        .update_refresh_now(channel_id, &*channel_name, success)
         .await
         .ok_or_else(|| error::Error(format!("could not refresh channel id {}, {}", channel_id, channel_name)))
 }
@@ -116,12 +119,15 @@ fn spawn_tasks(
         let db_bag_clone = Arc::clone(&db_bag);
         let settings_clone = Arc::clone(&settings);
         tasks.push(spawn(async move {
-            update_from_bakery(
+            println!("Starting request to {}", channel_name);
+            let res = update_from_bakery(
                 db_bag_clone,
                 settings_clone,
                 channel_id,
                 channel_name.clone(),
-            ).await
+            ).await;
+            println!("Done for {}", channel_name);
+            res
         }));
     }
 
@@ -146,8 +152,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         let mut tasks = spawn_tasks(&channels, &settings, &db_bag);
         let refresh = find_earliest_refresh(tasks.drain(..)).await;
-        let sleep_duration = get_shortest_sleep(Some(refresh), &channels).unwrap_or(settings.default_main_sleep);
+        let all_channels = db_bag.channels_coll.find_all()
+            .await
+            .unwrap_or_default();
+        let sleep_duration = get_shortest_sleep(Some(refresh), &all_channels).unwrap_or(settings.default_main_sleep);
         println!("All done! Sleeping for {}ms", sleep_duration);
-        sleep(Duration::from_millis(sleep_duration)).await;
+        sleep(Duration::from_millis(sleep_duration + 1000)).await;
     }
 }

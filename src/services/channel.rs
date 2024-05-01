@@ -6,7 +6,7 @@ impl Eq for &Channel {}
 
 impl Ord for &Channel {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        self.last_refresh.cmp(&other.last_refresh)
+        other.last_refresh.cmp(&self.last_refresh)
     }
 }
 
@@ -22,7 +22,7 @@ pub fn get_shortest_sleep(
         .iter()
         .min()
         .and_then(|el| {
-            let res = refresh_time.unwrap_or(el.last_refresh) + el.refresh_frequency - now_ms;
+            let res = refresh_time.unwrap_or(el.last_refresh) + (el.refresh_frequency as i64) - now_ms;
             if res < 0 {
                 return None;
             }

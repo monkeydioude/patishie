@@ -72,6 +72,8 @@ pub trait CollectionModel<P: PartialEq, T: CollectionModelConstraint<P>> {
         Some(results)
     }
 
+    // async fn update_one(&self, updates: &[(&str, )])
+
     /// insert_many inserts an array of documents into the collection
     async fn insert_many(&self, data: &[T]) -> Result<InsertManyResult, Error> {
         if data.is_empty() {
@@ -114,19 +116,25 @@ pub trait CollectionModel<P: PartialEq, T: CollectionModelConstraint<P>> {
         results
     }
 
+    /// find_all is a short for self.find(None, None, None)
+    /// which retrieves every document from a collection
+    async fn find_all(&self) -> Option<Vec<T>> {
+        self.find(None, None, None).await
+    }
+
     /// find returns document matching a `doc`, sorting on a `field` using a `sort` order (SortOrder),
     /// limited to a `limit` number of documents.
     async fn find(
         &self,
         filter: impl Into<Option<Document>>,
-        field: impl Into<Option<&str>>,
+        sort: impl Into<Option<(&str, SortOrder)>>,
         limit: impl Into<Option<i64>>,
-        sort: impl Into<Option<SortOrder>>,
     ) -> Option<Vec<T>> {
+        let sort_values = sort.into().unwrap_or_else(|| ("_id", SortOrder::DESC));
         let find_options = FindOptions::builder()
             .limit(limit)
             .sort(doc! {
-                field.into().unwrap_or("_id"): sort.into().unwrap_or(SortOrder::DESC).value(),
+                sort_values.0: sort_values.1.value(),
             })
             .build();
 

@@ -1,4 +1,3 @@
-use chrono::Utc;
 use serde::{de::{self, Visitor}, Deserialize, Serialize};
 
 use crate::{db::{channel::Channels, model::{CollectionModel, FieldSort, PrimaryID}}, error::Error};
@@ -56,8 +55,10 @@ pub struct Channel
     pub id: i32,
     pub name: String,
     pub last_refresh: i64,
+    pub last_successful_refresh: i64,
+    pub refresh_frequency: i32,
+    pub base_refresh_frequency: i32,
     pub source_type: SourceType,
-    pub refresh_frequency: i64,
     pub weight: f32,
 }
 
@@ -78,9 +79,11 @@ impl Channel {
         Channel {
             id: 0,
             name: name.to_string(),
-            last_refresh: Utc::now().timestamp_millis(),
-            source_type: source,
+            last_refresh: 0,
+            last_successful_refresh: 0,
             refresh_frequency: 2000,
+            base_refresh_frequency: 2000,
+            source_type: source,
             weight: 1.,
         }
     }
