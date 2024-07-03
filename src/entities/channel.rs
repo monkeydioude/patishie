@@ -55,9 +55,9 @@ pub struct Channel
     pub id: i32,
     pub name: String,
     pub last_refresh: i64,
-    pub last_successful_refresh: i64,
+    pub last_successful_refresh: Option<i64>,
     pub refresh_frequency: i32,
-    pub base_refresh_frequency: i32,
+    pub base_refresh_frequency: Option<i32>,
     pub source_type: SourceType,
     pub weight: f32,
 }
@@ -80,9 +80,9 @@ impl Channel {
             id: 0,
             name: name.to_string(),
             last_refresh: 0,
-            last_successful_refresh: 0,
+            last_successful_refresh: Some(0),
             refresh_frequency: 2000,
-            base_refresh_frequency: 2000,
+            base_refresh_frequency: Some(2000),
             source_type: source,
             weight: 1.,
         }

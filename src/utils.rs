@@ -1,6 +1,6 @@
 use chrono::{DateTime, Duration, Utc};
 use url::{Url, Position};
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::{ops::Add, fmt::Display, time::{SystemTime, UNIX_EPOCH}};
 
 pub fn now_timestamp_ms() -> u128 {
     SystemTime::now()
@@ -40,6 +40,92 @@ pub fn clean_url(input_url: &str) -> Result<String, url::ParseError> {
     let cleaned_url_no_scheme = &cleaned_url[scheme_end..];
 
     Ok(cleaned_url_no_scheme.to_string())
+}
+
+pub trait MeasureUnit {
+    fn unit(&self) -> String;
+}
+
+#[derive(Clone, Copy)]
+pub struct Millisecond(pub u64);
+
+impl Millisecond {
+    pub fn sec(&self) -> Second {
+        Second(self.0 / 1000)
+    }
+}
+
+impl Add<u64> for Millisecond {
+    type Output = u64;
+
+    fn add(self, rhs: u64) -> Self::Output {
+        self.clone().0 + rhs
+    }
+}
+
+impl MeasureUnit for Millisecond {
+    fn unit(&self) -> String {
+        "ms".to_string()
+    }
+}
+
+impl Display for Millisecond {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}{}", self.0, self.unit())
+    }
+}
+
+impl From<u64> for Millisecond {
+    fn from(value: u64) -> Self {
+        Millisecond(value)
+    }
+}
+
+impl From<Millisecond> for u64 {
+    fn from(value: Millisecond) -> Self {
+        value.0
+    }
+}
+
+#[derive(Clone, Copy)]
+pub struct Second(pub u64);
+
+impl Second {
+    pub fn msec(&self) -> Millisecond {
+        Millisecond(self.0 * 1000)
+    }
+}
+
+impl From<u64> for Second {
+    fn from(value: u64) -> Self {
+        Second(value)
+    }
+}
+
+impl From<Second> for u64 {
+    fn from(value: Second) -> Self {
+        value.0
+    }
+}
+
+impl Add<u64> for Second {
+    type Output = u64;
+
+    fn add(self, rhs: u64) -> Self::Output {
+        self.clone().0 + rhs
+    }
+}
+
+impl Display for Second {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}{}", self.0, self.unit())
+    }
+}
+
+impl MeasureUnit for Second {
+    fn unit(&self) -> String {
+        "s".to_string()
+    }
 }
 
 #[cfg(test)]
