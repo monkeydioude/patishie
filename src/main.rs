@@ -65,12 +65,15 @@ async fn update_from_bakery(
         db_bag.timers_coll
             .insert_one(&channel_name, refresh_time)
             .await;
-        let _ = process_data(
+        let res = process_data(
             &parsed_from_bakery,
             &db_bag.items_coll,
             &db_bag.channels_coll,
             &channel_name,
-        );
+        ).await;
+        if res.is_err() {
+            println!("[ERR ] {:?}", res.err());
+        }
     }
     db_bag.channels_coll
         .update_refresh_now(channel_id, &*channel_name, success)

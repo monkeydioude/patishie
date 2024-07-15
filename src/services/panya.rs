@@ -25,7 +25,12 @@ pub async fn process_data(
                 pa.channel_name = Some(channel_name.to_string());
                 pa.channel_id = Some(channel_id);
             });
-        let _ = items_coll.insert_many(&to_insert, None).await;
+        return items_coll.insert_many(&to_insert, None)
+            .await
+            .map(|res| {
+                println!("items_coll.insert_many{:?}", res);
+                return ();
+            })
     }
     Ok(())
 }
