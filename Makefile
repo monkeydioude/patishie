@@ -1,5 +1,9 @@
 CARGO_WATCH_IGNORES := $(shell grep -E '^[^\#]| ?\n' .gitignore | sed 's/^/--ignore /')
 
+.PHONY: all
+all:
+	sudo -H -u mkd cargo install --path . --force
+
 .PHONY: watch
 watch:
 	cargo watch $(CARGO_WATCH_IGNORES) -x 'run'
