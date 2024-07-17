@@ -53,7 +53,7 @@ async fn update_from_bakery(
         .update_refresh_now(channel_id, &*channel_name, false)
         .await
         .ok_or_else(|| error::Error(format!("could not refresh channel id {}, {}", channel_id, channel_name)))?;
-    let parsed_from_bakery = get_cookies_from_bakery(&settings.api_path, &raw_url)
+    let parsed_from_bakery = get_cookies_from_bakery(&settings.api_path, &raw_url, log_id)
         .await
         .unwrap_or_default();
     let refresh_time = (Utc::now() - now_before_refresh).num_milliseconds();

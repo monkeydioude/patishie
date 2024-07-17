@@ -8,6 +8,9 @@ all:
 watch:
 	cargo watch $(CARGO_WATCH_IGNORES) -x 'run'
 
+.PHONY: dev
+dev: watch
+
 .PHONY: lint
 lint:
 	cargo fmt
