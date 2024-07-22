@@ -1,6 +1,26 @@
 use chrono::{DateTime, Duration, Utc};
 use url::{Url, Position};
-use std::{ops::Add, fmt::Display, time::{SystemTime, UNIX_EPOCH}};
+use std::{fmt::Display, ops::Add, sync::Arc, time::{SystemTime, UNIX_EPOCH}};
+
+use crate::{db::{channel::Channels, entities::Timer, items::Items, model::BlankCollection, mongo::Handle, timers::Timers}, entities::{channel::Channel, potential_articles::PotentialArticle}, error::Error};
+
+pub struct DBBag {
+    // db_handle: Arc<Handle>,
+    pub channels_coll: Channels<Channel>,
+    pub items_coll: Items<PotentialArticle>,
+    pub timers_coll: BlankCollection<Timer>,
+} 
+
+impl DBBag {
+    pub fn new(db_handle: Arc<Handle>) -> Result<Self, Error> {
+        Ok(Self {
+            // db_handle: db_handle.clone(),
+            channels_coll: Channels::<Channel>::new(db_handle.clone(), "panya")?,
+            items_coll: Items::<PotentialArticle>::new(db_handle.clone(), "panya")?,
+            timers_coll: Timers::new(db_handle, "panya", "timers")?,
+        })
+    }
+}
 
 pub fn now_timestamp_ms() -> u128 {
     SystemTime::now()

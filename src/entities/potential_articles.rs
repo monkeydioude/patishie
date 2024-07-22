@@ -8,6 +8,7 @@ pub struct PotentialArticle {
     pub link: String,
     pub img: String,
     pub desc: String,
+    pub title: Option<String>,
     #[serde(alias = "date")]
     pub create_date: i64,
     pub channel_name: Option<String>,

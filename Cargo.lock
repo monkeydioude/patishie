@@ -1094,6 +1094,7 @@ dependencies = [
  "mongodb",
  "reqwest",
  "serde 1.0.198",
+ "serde-xml-rs",
  "serde_json",
  "thiserror",
  "tokio",
@@ -1494,6 +1495,16 @@ dependencies = [
  "num-traits 0.1.43",
  "regex",
  "serde 0.8.23",
+]
+
+[[package]]
+name = "serde-xml-rs"
+version = "0.6.0"
+dependencies = [
+ "log",
+ "serde 1.0.198",
+ "thiserror",
+ "xml-rs",
 ]
 
 [[package]]
@@ -2342,6 +2353,12 @@ checksum = "05f360fc0b24296329c78fda852a1e9ae82de9cf7b27dae4b7f62f118f77b9ed"
 dependencies = [
  "tap",
 ]
+
+[[package]]
+name = "xml-rs"
+version = "0.8.20"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "791978798f0597cfc70478424c2b4fdc2b7a8024aaff78497ef00f24ef674193"
 
 [[package]]
 name = "yaml-rust"

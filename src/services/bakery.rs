@@ -1,3 +1,4 @@
+use chrono::Utc;
 use reqwest::Client;
 use uuid::Uuid;
 
@@ -8,7 +9,8 @@ const X_REQUEST_ID_LABEL: &str = "X-Request-ID";
 const NO_X_REQUEST_ID_LABEL: &str = "no_x_request_id";
 
 /// get_cookies_from_bakery calls bakery, a website scrapper, and returns the result
-pub async fn get_cookies_from_bakery(api_path: &str, url: &str, uuid: Uuid) -> Option<Vec<PotentialArticle>> {
+pub async fn get_cookies_from_bakery(api_path: &str, channel_name: &str, uuid: Uuid) -> Option<Vec<PotentialArticle>> {
+    let url = "https://".to_string() + channel_name;
     let client = Client::new();
     let mut uuid_str = uuid.to_string();
     if uuid_str == "" {
@@ -23,7 +25,7 @@ pub async fn get_cookies_from_bakery(api_path: &str, url: &str, uuid: Uuid) -> O
     let raw_data = match response {
         Ok(res) => res.text().await.unwrap_or("[]".to_string()),
         Err(err) => {
-            eprintln!("{}", err);
+            eprintln!("[{}] ({}) {}", uuid, Utc::now(), err);
             return None;
         }
     };

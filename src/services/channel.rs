@@ -1,6 +1,6 @@
 use chrono::Utc;
 
-use crate::entities::channel::Channel;
+use crate::{db::{channel::Channels, model::CollectionModel, pipeline::Pipeline}, entities::channel::Channel};
 
 impl Eq for &Channel {}
 
@@ -28,4 +28,17 @@ pub fn get_shortest_sleep(
             }
             Some(res as u64)
         })
+}
+
+pub async fn fetch_ready_channels(channels_coll: &Channels<Channel>) -> Vec<Channel> {
+    channels_coll
+        .find_aggregate(
+            Pipeline::single_add_lt(
+                "next_refresh", 
+                &["last_refresh", "refresh_frequency"], 
+                &Utc::now().timestamp_millis()
+            )
+        )
+        .await
+        .unwrap_or_default()
 }

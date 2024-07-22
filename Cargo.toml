@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+serde-xml-rs = { path = "../serde-xml-rs" }
 mongodb = "2.7.0"
 config = "0.10"
 serde = { version = "1.0.163", features = ["derive"] }
@@ -26,4 +27,4 @@ features = [
 [profile.dev]
 opt-level = 0
 [profile.release]
-opt-level = 0
+opt-level = 0   

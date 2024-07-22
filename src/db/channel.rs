@@ -2,7 +2,7 @@ use super::{
     model::{CollectionModel, CollectionModelConstraint},
     mongo::Handle,
 };
-use crate::{entities::channel::{new_with_seq_db, Channel, SourceType}, error::Error};
+use crate::{entities::{channel::{new_with_seq_db, Channel}, source_type::SourceType}, error::Error};
 use chrono::{DateTime, Utc};
 use mongodb::{bson::doc, results::InsertManyResult, Collection, Database, IndexModel};
 use serde::Serialize;
