@@ -116,7 +116,7 @@ pub fn spawn_tasks(
                 "[{}] ({}) Starting request to {}",
                 task_id,
                 before.timestamp_millis(),
-                channel_name
+                &channel_url
             );
             let res = update_channel(
                 db_bag_clone,

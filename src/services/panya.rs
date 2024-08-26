@@ -22,7 +22,6 @@ pub async fn process_data(
     let existing_links = items_coll.find_by_field_values(&articles, "link", 0).await;
     // picks out existing links in db
     let mut to_insert = articles.remove_existing(&existing_links);
-
     // something to insert
     if !to_insert.is_empty() {
         let channel_id =
