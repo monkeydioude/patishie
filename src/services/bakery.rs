@@ -9,8 +9,11 @@ const X_REQUEST_ID_LABEL: &str = "X-Request-ID";
 const NO_X_REQUEST_ID_LABEL: &str = "no_x_request_id";
 
 /// get_cookies_from_bakery calls bakery, a website scrapper, and returns the result
-pub async fn get_cookies_from_bakery(api_path: &str, channel_name: &str, uuid: Uuid) -> Option<Vec<PotentialArticle>> {
-    let url = "https://".to_string() + channel_name;
+pub async fn get_cookies_from_bakery(
+    api_path: &str,
+    channel_url: &str,
+    uuid: Uuid,
+) -> Option<Vec<PotentialArticle>> {
     let client = Client::new();
     let mut uuid_str = uuid.to_string();
     if uuid_str == "" {
@@ -18,7 +21,7 @@ pub async fn get_cookies_from_bakery(api_path: &str, channel_name: &str, uuid: U
     }
     // let response = reqwest::get(format!("{}/bakery?url={}", api_path, url)).await;
     let response = client
-        .get(format!("{}/bakery?url={}", api_path, url))
+        .get(format!("{}/bakery?url={}", api_path, channel_url))
         .header(X_REQUEST_ID_LABEL, uuid_str)
         .send()
         .await;

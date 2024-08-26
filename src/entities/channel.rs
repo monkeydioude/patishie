@@ -1,14 +1,20 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{db::{channel::Channels, model::{CollectionModel, FieldSort, PrimaryID}}, error::Error};
+use crate::{
+    db::{
+        channel::Channels,
+        model::{CollectionModel, FieldSort, PrimaryID},
+    },
+    error::Error,
+};
 
 use super::source_type::SourceType;
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, PartialOrd)]
-pub struct Channel
-{
+pub struct Channel {
     pub id: i32,
     pub name: String,
+    pub url: String,
     pub last_refresh: i64,
     pub last_successful_refresh: Option<i64>,
     pub refresh_frequency: i32,
@@ -30,10 +36,11 @@ impl FieldSort<String> for Channel {
 }
 
 impl Channel {
-    pub fn new(name: &str, source: SourceType) -> Self {
+    pub fn new(name: &str, url: &str, source: SourceType) -> Self {
         Channel {
             id: 0,
             name: name.to_string(),
+            url: url.to_string(),
             last_refresh: 0,
             last_successful_refresh: Some(0),
             refresh_frequency: 2000,
@@ -46,12 +53,14 @@ impl Channel {
 
 pub async fn new_with_seq_db(
     name: &str,
+    url: &str,
     source: SourceType,
     channels_coll: &Channels<Channel>,
 ) -> Result<Channel, Error> {
-    let mut channel = Channel::new(name, source);
+    let mut channel = Channel::new(name, url, source);
     channel.id = channels_coll.get_next_seq().await?;
-    channels_coll.insert_many(&[channel.clone()], Some("id".to_string()))
+    channels_coll
+        .insert_many(&[channel.clone()], Some("id".to_string()))
         .await
         .and(Ok(channel))
 }

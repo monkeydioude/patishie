@@ -4,16 +4,17 @@ use serde_xml_rs::from_str;
 use uuid::Uuid;
 
 pub async fn get_cookies_from_rss(
-    channel_name: &str,
+    channel_url: &str,
     channel_id: i32,
     uuid: Uuid,
 ) -> Option<Vec<PotentialArticle>> {
-    let url = channel_name;
+    let url = channel_url;
     let response = reqwest::get(url)
         .await
         .map_err(|err| eprintln!("[{}] ({}) {}", uuid, Utc::now(), err))
         .ok()?;
-    let raw_data = response.text()
+    let raw_data = response
+        .text()
         .await
         .map_err(|err| eprintln!("[{}] ({}) {}", uuid, Utc::now(), err))
         .ok()?;
