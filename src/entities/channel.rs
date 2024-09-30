@@ -43,8 +43,8 @@ impl Channel {
             url: url.to_string(),
             last_refresh: 0,
             last_successful_refresh: Some(0),
-            refresh_frequency: 2000,
-            base_refresh_frequency: Some(2000),
+            refresh_frequency: 60000,
+            base_refresh_frequency: Some(60000),
             source_type: source,
             weight: 1.,
         }
