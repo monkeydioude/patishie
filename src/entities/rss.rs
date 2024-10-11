@@ -1,11 +1,11 @@
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, ParseError, Utc};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct Content {
     pub url: String,
     pub description: Option<String>,
-    pub credit: Option<String>
+    pub credit: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
@@ -22,6 +22,18 @@ pub struct Item {
     pub content: Option<Content>,
 }
 
+fn parse_date(date_str: &str) -> Result<DateTime<Utc>, ParseError> {
+    if let Ok(dt) = DateTime::parse_from_rfc2822(date_str) {
+        return Ok(dt.with_timezone(&Utc));
+    }
+
+    if let Ok(dt) = DateTime::parse_from_rfc3339(date_str) {
+        return Ok(dt.with_timezone(&Utc));
+    }
+
+    Ok(date_str.parse::<DateTime<Utc>>().unwrap_or_default())
+}
+
 impl Item {
     pub fn get_create_date(&self) -> i64 {
         if self.pub_date.is_none() {
@@ -29,7 +41,7 @@ impl Item {
         }
         self.pub_date
             .clone()
-            .map(|pub_date| pub_date.parse::<DateTime<Utc>>().unwrap_or_default())
+            .map(|pub_date| parse_date(&pub_date).unwrap_or_default())
             .unwrap_or_default()
             .timestamp_millis()
     }
@@ -63,7 +75,7 @@ pub struct Channel {
 
 impl Channel {
     pub fn get_channel_name(&self, url: &str) -> String {
-       self.title.clone().unwrap_or_else( move || url.to_string())
+        self.title.clone().unwrap_or_else(move || url.to_string())
     }
 }
 

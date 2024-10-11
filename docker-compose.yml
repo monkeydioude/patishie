@@ -1,0 +1,34 @@
+services:
+  oven:
+    image: drannoc/oven
+    ports:
+      - "3031:3031"
+    volumes:
+      - ./output:/app/output
+  # mongo:
+  #   image: drannoc/mongosail
+  #   environment:
+  #     - MONGO_DATA_DIR=/data/db
+  #     - MONGO_LOG_DIR=/data/logs
+  #   volumes:
+  #     - ./db/logs/:/data/logs/
+  #     - ./db/data/:/data/db
+  #     - ./scripts/mongo/migrations/:/migrations/
+  #   ports:
+  #     - 27017:27017
+  #   networks:
+  #     - panya_net
+  bakery:
+    image: drannoc/bakery
+    depends_on:
+      # mongo:
+      #   condition: service_healthy
+      oven:
+        condition: service_started
+    environment:
+      - RUN_MODE=docker
+    ports:
+      - 8084:8084
+networks:
+  panya_net:
+    external: true

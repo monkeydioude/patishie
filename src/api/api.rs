@@ -1,6 +1,6 @@
 use std::net::Ipv4Addr;
 
-use rocket::{get, http::Method, serde::json::Json, Build, Config, Rocket, Route};
+use rocket::{get, serde::json::Json, Build, Config, Rocket, Route};
 use serde::Serialize;
 
 #[derive(Clone, Debug, Serialize)]
