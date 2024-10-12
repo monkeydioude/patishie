@@ -57,6 +57,9 @@ impl Item {
     pub fn get_title(&self) -> Option<String> {
         Some(self.title.clone())
     }
+    pub fn get_categories(&self) -> Option<Vec<String>> {
+        Some(self.category.clone().unwrap_or_default())
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]

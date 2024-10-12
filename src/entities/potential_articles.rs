@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use chrono::{TimeZone, Utc};
+use serde::{Deserialize, Serialize};
 
 use crate::db::model::{FieldSort, PrimaryID};
 
@@ -13,6 +13,7 @@ pub struct PotentialArticle {
     pub create_date: i64,
     pub channel_name: Option<String>,
     pub channel_id: Option<i32>,
+    pub categories: Option<Vec<String>>,
 }
 
 impl PotentialArticle {
