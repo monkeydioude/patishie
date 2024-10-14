@@ -14,11 +14,9 @@ pub struct Item {
     #[serde(alias = "pubDate")]
     pub pub_date: Option<String>,
     pub description: Option<String>,
-    #[serde(alias = "creator")]
     pub creator: Option<String>,
     pub category: Option<Vec<String>>,
     pub link: Option<String>,
-    #[serde(alias = "content")]
     pub content: Option<Content>,
 }
 
@@ -35,14 +33,14 @@ fn parse_date(date_str: &str) -> Result<DateTime<Utc>, ParseError> {
 }
 
 impl Item {
-    pub fn get_create_date(&self) -> i64 {
+    pub fn get_create_date(&self, default_date: DateTime<Utc>) -> i64 {
         if self.pub_date.is_none() {
-            return 0;
+            return default_date.timestamp_millis();
         }
         self.pub_date
             .clone()
             .map(|pub_date| parse_date(&pub_date).unwrap_or_default())
-            .unwrap_or_default()
+            .unwrap_or(default_date)
             .timestamp_millis()
     }
     pub fn get_img(&self) -> String {

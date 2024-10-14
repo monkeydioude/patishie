@@ -29,7 +29,7 @@ pub async fn get_cookies_from_rss(
             title: item.get_title(),
             categories: item.get_categories(),
             desc: item.get_desc(),
-            create_date: item.get_create_date(),
+            create_date: item.get_create_date(Utc::now()),
             channel_name: Some(rss.channel.get_channel_name(url)),
             channel_id: Some(channel_id),
         })
