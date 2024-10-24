@@ -27,13 +27,13 @@ impl Channels<Channel> {
         data: &[Channel],
         index: Option<String>,
     ) -> Result<InsertManyResult, Error> {
-        let idx = index.unwrap_or_else(|| "create_date".to_string());
-        // Works cause we dont store result, nor do we return it.
-        // An Err() is returned, if that's the case.
-        self.collection()
-            // Oftenly creating new collectionm therefore index
-            .create_index(IndexModel::builder().keys(doc! {idx: -1}).build(), None)
-            .await?;
+        // let idx = index.unwrap_or_else(|| "create_date".to_string());
+        // // Works cause we dont store result, nor do we return it.
+        // // An Err() is returned, if that's the case.
+        // self.collection()
+        //     // Oftenly creating new collectionm therefore index
+        //     .create_index(IndexModel::builder().keys(doc! {idx: -1}).build(), None)
+        //     .await?;
         CollectionModel::<i32, Channel>::insert_many(self, data).await
     }
 
