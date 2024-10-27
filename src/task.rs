@@ -107,7 +107,7 @@ pub fn spawn_tasks(
         tasks.push(spawn(async move {
             let before = Utc::now();
             let task_id = Uuid::new_v4();
-            println!(
+            eprintln!(
                 "[{}] ({}) Starting request to {}",
                 task_id,
                 before.timestamp_millis(),
@@ -124,7 +124,7 @@ pub fn spawn_tasks(
             )
             .await;
             let after = Utc::now();
-            println!(
+            eprintln!(
                 "[{}] ({}) Done for {}, in {}ms",
                 task_id,
                 after.timestamp_millis(),

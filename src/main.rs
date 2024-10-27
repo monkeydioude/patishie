@@ -47,7 +47,7 @@ async fn launch() -> _ {
         loop {
             let channels = fetch_ready_channels(&db_bag.channels_coll).await;
             if channels.is_empty() {
-                println!(
+                eprintln!(
                     "({}) Didnt find any channel to refresh. Sleeping for {}",
                     Utc::now().timestamp_millis(),
                     sleep_duration
@@ -58,6 +58,11 @@ async fn launch() -> _ {
 
             let mut _tasks = spawn_tasks(&channels, &settings, &db_bag, &mut ledger);
             join_all(_tasks).await;
+            eprintln!(
+                "({}) Done :) Sleeping for {}",
+                Utc::now().timestamp_millis(),
+                sleep_duration + 1000
+            );
             sleep(Duration::from_millis(sleep_duration + 1000)).await;
         }
     });
