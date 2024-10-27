@@ -23,7 +23,6 @@ async fn update_channel(
     source_type: SourceType,
 ) -> Result<i64, Error> {
     // now time
-    let now_before_refresh = Utc::now();
     let _ = db_bag
         .channels_coll
         .update_refresh_now(channel_id, &*channel_name, false)

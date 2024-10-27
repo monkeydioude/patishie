@@ -22,11 +22,7 @@ pub struct Channels<T: Serialize> {
 }
 
 impl Channels<Channel> {
-    pub async fn insert_many(
-        &self,
-        data: &[Channel],
-        index: Option<String>,
-    ) -> Result<InsertManyResult, Error> {
+    pub async fn insert_many(&self, data: &[Channel]) -> Result<InsertManyResult, Error> {
         // let idx = index.unwrap_or_else(|| "create_date".to_string());
         // // Works cause we dont store result, nor do we return it.
         // // An Err() is returned, if that's the case.

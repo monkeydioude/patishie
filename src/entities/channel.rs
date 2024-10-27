@@ -60,7 +60,7 @@ pub async fn new_with_seq_db(
     let mut channel = Channel::new(name, url, source);
     channel.id = channels_coll.get_next_seq().await?;
     channels_coll
-        .insert_many(&[channel.clone()], Some("id".to_string()))
+        .insert_many(&[channel.clone()])
         .await
         .and(Ok(channel))
 }
