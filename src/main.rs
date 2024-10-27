@@ -4,6 +4,7 @@ use std::{sync::Arc, time::Duration};
 use api::api::{healthcheck, lezgong};
 use chrono::Utc;
 use config::Settings;
+use futures::future::join_all;
 use rocket::{launch, routes};
 use services::channel::fetch_ready_channels;
 use task::spawn_tasks;
@@ -56,6 +57,7 @@ async fn launch() -> _ {
             }
 
             let mut _tasks = spawn_tasks(&channels, &settings, &db_bag, &mut ledger);
+            join_all(_tasks).await;
             sleep(Duration::from_millis(sleep_duration + 1000)).await;
         }
     });
