@@ -10,7 +10,7 @@ use crate::{
     error::Error,
 };
 use chrono::{DateTime, Utc};
-use mongodb::{bson::doc, results::InsertManyResult, Collection, Database, IndexModel};
+use mongodb::{bson::doc, results::InsertManyResult, Collection, Database};
 use serde::Serialize;
 use std::{fmt::Debug, sync::Arc};
 

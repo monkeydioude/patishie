@@ -46,7 +46,6 @@ async fn update_channel(
             return Err(Error("SourceType::Other not implemeented yet".to_string()));
         }
     };
-    let refresh_time = (Utc::now() - now_before_refresh).num_milliseconds();
     let mut success = true;
     if parsed_result.is_empty() {
         success = false;
@@ -59,10 +58,6 @@ async fn update_channel(
             channel_id
         );
     } else {
-        db_bag
-            .timers_coll
-            .insert_one(&channel_name, refresh_time)
-            .await;
         let res = process_data(
             &parsed_result,
             &db_bag.items_coll,
