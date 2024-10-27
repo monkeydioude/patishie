@@ -59,7 +59,7 @@ async fn launch() -> _ {
             let mut _tasks = spawn_tasks(&channels, &settings, &db_bag, &mut ledger);
             join_all(_tasks).await;
             eprintln!(
-                "({}) Done :) Sleeping for {}",
+                "({}) Done :) Sleeping for {}ms",
                 Utc::now().timestamp_millis(),
                 sleep_duration + 1000
             );
